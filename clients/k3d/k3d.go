@@ -21,7 +21,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-var importTimeout = int64(60 * 5)
+var importTimeout = int64(60 * 20)
 
 // CreateK3DCluster creates a minimal k3d cluster and returns a rest config for connecting to the newly created cluster.
 // If a name is not given a random one will be generated.

@@ -12,6 +12,7 @@ import (
 	management "github.com/rancher/shepherd/clients/rancher/generated/management/v3"
 	ext_unstructured "github.com/rancher/shepherd/extensions/unstructured"
 	"github.com/rancher/shepherd/pkg/wait"
+	"github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 
@@ -246,6 +247,8 @@ func IsImportedClusterReady(event watch.Event) (ready bool, err error) {
 	agentDeployed := cluster.Status.AgentDeployed
 	var numSuccess int
 	for _, condition := range cluster.Status.Conditions {
+		logrus.Infof("condition type", condition.Type)
+		logrus.Infof("condition status", condition.Status)
 		if condition.Type == "Ready" && condition.Status == corev1.ConditionTrue {
 			numSuccess++
 		}

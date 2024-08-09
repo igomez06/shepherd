@@ -11,10 +11,6 @@ import (
 	kwait "k8s.io/apimachinery/pkg/util/wait"
 )
 
-const (
-	PodResourceSteveType = "pod"
-)
-
 // StatusPods is a helper function that uses the steve client to list pods on a namespace for a specific cluster
 // and return the statuses in a list of strings
 func StatusPods(client *rancher.Client, clusterID string) []error {

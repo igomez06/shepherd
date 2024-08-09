@@ -7,7 +7,6 @@ import (
 	catalogv1 "github.com/rancher/rancher/pkg/apis/catalog.cattle.io/v1"
 	"github.com/rancher/shepherd/clients/rancher"
 	steveV1 "github.com/rancher/shepherd/clients/rancher/v1"
-	"github.com/rancher/shepherd/extensions/clusters"
 	"github.com/rancher/shepherd/extensions/defaults"
 	"github.com/rancher/shepherd/extensions/kubeapi/workloads/daemonsets"
 	"github.com/rancher/shepherd/extensions/kubeapi/workloads/deployments"
@@ -27,62 +26,9 @@ const (
 	serverURLSettingID = "server-url"
 	rancherChartsName  = "rancher-charts"
 	active             = "active"
+	repoType           = "catalog.cattle.io.clusterrepo"
+	appsType           = "catalog.cattle.io.apps"
 )
-
-// InstallOptions is a struct of the required options to install a chart.
-type InstallOptions struct {
-	Cluster   *clusters.ClusterMeta
-	Version   string
-	ProjectID string
-}
-
-// payloadOpts is a private struct that contains the options for the chart payloads.
-// It is used to avoid passing the same options to different functions while using the chart helpers.
-type payloadOpts struct {
-	InstallOptions
-	Name            string
-	Namespace       string
-	Host            string
-	DefaultRegistry string
-}
-
-// RancherIstioOpts is a struct of the required options to install Rancher Istio with desired chart values.
-type RancherIstioOpts struct {
-	IngressGateways bool
-	EgressGateways  bool
-	Pilot           bool
-	Telemetry       bool
-	Kiali           bool
-	Tracing         bool
-	CNI             bool
-}
-
-// RancherMonitoringOpts is a struct of the required options to install Rancher Monitoring with desired chart values.
-type RancherMonitoringOpts struct {
-	IngressNginx      bool `json:"ingressNginx" yaml:"ingressNginx"`
-	ControllerManager bool `json:"controllerManager" yaml:"controllerManager"`
-	Etcd              bool `json:"etcd" yaml:"etcd"`
-	Proxy             bool `json:"proxy" yaml:"proxy"`
-	Scheduler         bool `json:"scheduler" yaml:"scheduler"`
-}
-
-// RancherLoggingOpts is a struct of the required options to install Rancher Logging with desired chart values.
-type RancherLoggingOpts struct {
-	AdditionalLoggingSources bool
-}
-
-// RancherAlertingOpts is a struct of the required options to install Rancher Alerting Drivers with desired chart values.
-type RancherAlertingOpts struct {
-	SMS   bool
-	Teams bool
-}
-
-// GetChartCaseEndpointResult is a struct that GetChartCaseEndpoint helper function returns.
-// It contains the boolean for healthy response and the request body.
-type GetChartCaseEndpointResult struct {
-	Ok   bool
-	Body string
-}
 
 // ChartStatus is a struct that GetChartStatus helper function returns.
 // It contains the boolean for is already installed and the chart information.

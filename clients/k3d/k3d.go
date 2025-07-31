@@ -163,11 +163,13 @@ func CreateAndImportK3DCluster(client *rancher.Client, name, image, hostname str
 		return nil, errors.Wrap(err, "CreateAndImportK3DCluster: failed to import cluster")
 	}
 
+	var tempTimeout int64
+	tempTimeout = 60 * 5
 	// wait for the imported cluster to be ready
 	logrus.Infof("Waiting for imported cluster...")
 	clusterWatch, err = kubeProvisioningClient.Clusters("fleet-default").Watch(context.TODO(), metav1.ListOptions{
 		FieldSelector:  "metadata.name=" + name,
-		TimeoutSeconds: &importTimeout,
+		TimeoutSeconds: &tempTimeout,
 	})
 	if err != nil {
 		return nil, errors.Wrap(err, "CreateAndImportK3DCluster: failed to instantiate the watcher for the cluster")

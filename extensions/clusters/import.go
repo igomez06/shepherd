@@ -101,18 +101,23 @@ func ImportCluster(client *rancher.Client, cluster *apisV1.Cluster, rest *rest.C
 		},
 	}
 
+	var errorSA error
 	kwait.ExponentialBackoff(backoff, func() (finished bool, err error) {
 		_, err = downClient.Resource(corev1.SchemeGroupVersion.WithResource("serviceaccounts")).Namespace("kube-system").List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
+			errorSA = err
 			return false, nil
 		}
 
 		return true, nil
 	})
+	if err != nil {
+		return fmt.Errorf("failed to list serviceaccounts %v, %v", err, errorSA)
+	}
 
 	_, err = downClient.Resource(corev1.SchemeGroupVersion.WithResource("serviceaccounts")).Namespace("kube-system").Create(context.TODO(), ext_unstructured.MustToUnstructured(sa), metav1.CreateOptions{})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create serviceaccounts %v", err)
 	}
 
 	rb := &rbacv1.ClusterRoleBinding{
@@ -262,6 +267,12 @@ func IsImportedClusterReady(event watch.Event) (ready bool, err error) {
 	agentDeployed := cluster.Status.AgentDeployed
 	var numSuccess int
 	for _, condition := range cluster.Status.Conditions {
+		logrus.Infof("status is %v", condition.Status)
+		logrus.Infof("type is %v", condition.Type)
+		logrus.Infof("message is %v", condition.Message)
+		logrus.Infof("reason is %v", condition.Reason)
+		logrus.Infof("lastTransitionTime is %v", condition.LastTransitionTime)
+
 		if condition.Type == "Ready" && condition.Status == corev1.ConditionTrue {
 			numSuccess++
 		}

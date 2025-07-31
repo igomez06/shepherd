@@ -12,6 +12,7 @@ import (
 	management "github.com/rancher/shepherd/clients/rancher/generated/management/v3"
 	ext_unstructured "github.com/rancher/shepherd/extensions/unstructured"
 	"github.com/rancher/shepherd/pkg/wait"
+	"github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 
@@ -86,7 +87,7 @@ func ImportCluster(client *rancher.Client, cluster *apisV1.Cluster, rest *rest.C
 		return false, nil
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed on listing cluster and find correct token %v", err)
 	}
 
 	downClient, err := dynamic.NewForConfig(ts, rest)
@@ -218,7 +219,22 @@ func ImportCluster(client *rancher.Client, cluster *apisV1.Cluster, rest *rest.C
 		return wj.Status.Succeeded == 1, nil
 	})
 	if err != nil {
-		return err
+		provClient, err := client.GetKubeAPIProvisioningClient()
+		if err != nil {
+			return fmt.Errorf("failed to get prov client %v", err)
+		}
+
+		cluster, err := provClient.ProvisioningV1Interface.Clusters("fleet-default").Get(context.TODO(), cluster.Name, metav1.GetOptions{})
+		if err != nil {
+			return fmt.Errorf("failed to get cluster %v", err)
+		}
+
+		for _, condition := range cluster.Status.Conditions {
+			logrus.Infof("conditions status %v", condition.Status)
+			logrus.Infof("conditions message %s", condition.Message)
+			logrus.Infof("conditions whole thing %v", condition)
+		}
+		return fmt.Errorf("Jobfailed to complete %v", err)
 	}
 
 	return nil

@@ -267,11 +267,7 @@ func IsImportedClusterReady(event watch.Event) (ready bool, err error) {
 	agentDeployed := cluster.Status.AgentDeployed
 	var numSuccess int
 	for _, condition := range cluster.Status.Conditions {
-		logrus.Infof("status is %v", condition.Status)
-		logrus.Infof("type is %v", condition.Type)
-		logrus.Infof("message is %v", condition.Message)
-		logrus.Infof("reason is %v", condition.Reason)
-		logrus.Infof("lastTransitionTime is %v", condition.LastTransitionTime)
+		logrus.Infof("whole thing is %v", condition)
 
 		if condition.Type == "Ready" && condition.Status == corev1.ConditionTrue {
 			numSuccess++

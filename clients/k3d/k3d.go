@@ -164,7 +164,7 @@ func CreateAndImportK3DCluster(client *rancher.Client, name, image, hostname str
 	}
 
 	var tempTimeout int64
-	tempTimeout = 60 * 5
+	tempTimeout = 60 * 10
 	// wait for the imported cluster to be ready
 	logrus.Infof("Waiting for imported cluster...")
 	clusterWatch, err = kubeProvisioningClient.Clusters("fleet-default").Watch(context.TODO(), metav1.ListOptions{

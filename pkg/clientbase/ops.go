@@ -290,7 +290,21 @@ func (a *APIOperations) doUpdate(schemaType string, replace bool, existing *type
 		return errors.New("Resource type [" + schemaType + "] is not updatable")
 	}
 
-	return a.DoModify("PUT", selfURL, updates, respObject)
+	err := a.DoModify("PUT", selfURL, updates, respObject)
+	if err != nil {
+		return err
+	}
+
+	a.Session.RegisterCleanupFunc(func() error {
+		newRespObject := &map[string]interface{}{}
+		err := a.DoModify("PUT", selfURL, existing, newRespObject)
+		if err != nil && (strings.Contains(err.Error(), "404 Not Found") || strings.Contains(err.Error(), "failed to find self URL of [&{  map[] map[]}]")) {
+			return nil
+		}
+		return err
+	})
+
+	return nil
 }
 
 func (a *APIOperations) DoByID(schemaType string, id string, respObject interface{}) error {
